@@ -129,7 +129,7 @@
 </div>
 
 <script>
-const PW_HASH='7244b4aa392a1b1b916fc856a9f1a1b51db83b028d7a192deed80fd52d914d10';
+const PW_HASH='141fe80e0959e72574436d6ae4705fe44a0b7ed5076ae2d16e9923a968b07730';
 async function sha256(s){const d=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 async function checkPw(){
   const v=document.getElementById('pwInput').value;
