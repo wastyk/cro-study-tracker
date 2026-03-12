@@ -3,565 +3,581 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRO Study Tracker</title>
+<title>CRO Budget Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9fafb; color: #111827; }
-  .container { max-width: 100%; margin: 0 auto; padding: 24px; }
-
-  /* Header */
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .header h1 { font-size: 30px; font-weight: 700; color: #111827; }
-  .sync-info { font-size: 13px; color: #9ca3af; }
-
-  /* Filters */
-  .filters { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
-  .filters .label { font-size: 14px; font-weight: 500; color: #4b5563; }
-  .filter-btn { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 9999px; border: 1px solid #d1d5db; background: #fff; color: #6b7280; font-size: 14px; cursor: pointer; transition: all .15s; }
-  .filter-btn.active { border-color: transparent; background: #1f2937; color: #fff; }
-  .filter-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .dot-partex { background: #3b82f6; }
-  .dot-eurofins { background: #10b981; }
-  .dot-nomic { background: #8b5cf6; }
-
-  /* Study card */
-  .study-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.05); margin-bottom: 40px; overflow: hidden; overflow-x: auto; }
-  .study-header { padding: 20px 24px; border-bottom: 1px solid #f3f4f6; }
-  .study-header-top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .study-title { font-size: 24px; font-weight: 700; color: #111827; }
-  .study-sub { font-size: 16px; color: #6b7280; margin-top: 4px; }
-  .study-stats { display: flex; gap: 32px; }
-  .stat { text-align: center; }
-  .stat-val { font-size: 30px; font-weight: 700; color: #111827; }
-  .stat-label { font-size: 14px; color: #9ca3af; }
-
-  /* Legend */
-  .legend { display: flex; align-items: center; gap: 20px; margin-top: 16px; font-size: 14px; color: #9ca3af; }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-weekend { display: inline-block; width: 24px; height: 12px; border-radius: 3px; background: repeating-linear-gradient(90deg, #e5e7eb 0px, #e5e7eb 4px, #f9fafb 4px, #f9fafb 8px); }
-  .legend-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #6b7280; }
-  .legend-rerun { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #6b7280; background: #fff; }
-  .legend-recomm { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #fb923c; }
-  .legend-today { display: inline-block; width: 24px; height: 2px; background: #f87171; }
-
-  /* Chart area */
-  .chart-area { padding: 16px; }
-
-  /* Date axis */
-  .date-axis { position: relative; height: 24px; margin-bottom: 8px; }
-  .date-label { position: absolute; transform: translateX(-50%); font-size: 12px; color: #9ca3af; white-space: nowrap; }
-
-  /* CRO group */
-  .cro-group { display: flex; margin-bottom: 12px; }
-  .cro-label-col { position: relative; flex-shrink: 0; width: 40px; border-radius: 8px 0 0 8px; border-left: 4px solid; }
-  .cro-label-col.partex { background: #eff6ff; border-left-color: #93c5fd; }
-  .cro-label-col.eurofins { background: #ecfdf5; border-left-color: #6ee7b7; }
-  .cro-label-col.nomic { background: #f5f3ff; border-left-color: #c4b5fd; }
-  .cro-label-text { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); white-space: nowrap; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; }
-  .cro-label-text.partex { color: #2563eb; }
-  .cro-label-text.eurofins { color: #059669; }
-  .cro-label-text.nomic { color: #7c3aed; }
-
-  /* Assay rows */
-  .assay-rows { flex: 1; }
-  .assay-row { display: flex; align-items: center; height: 80px; }
-  .assay-row.has-reruns { height: 96px; }
-  .assay-row + .assay-row { border-top: 1px solid #f3f4f6; }
-  .assay-name { flex-shrink: 0; width: 160px; text-align: right; padding-right: 12px; font-size: 14px; font-weight: 500; color: #374151; }
-
-  /* Timeline */
-  .timeline { position: relative; flex: 1; height: 80px; margin-right: 60px; }
-  .has-reruns .timeline { height: 96px; }
-  .weekend-bar { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, #e5e7eb 0px, #e5e7eb 4px, #f9fafb 4px, #f9fafb 8px); }
-  .today-line { position: absolute; top: 0; bottom: 0; width: 1px; background: #f87171; }
-  .gantt-bar { position: absolute; top: 50%; height: 12px; transform: translateY(-50%); border-radius: 9999px; opacity: 0.3; }
-  .gantt-bar.partex { background: #60a5fa; }
-  .gantt-bar.eurofins { background: #34d399; }
-  .gantt-bar.nomic { background: #a78bfa; }
-  .milestone-dot { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; }
-  .dot-arrival { background: #4b5563; border: 2px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-data-partex { background: #1d4ed8; border: 2px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-data-eurofins { background: #047857; border: 2px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-data-nomic { background: #6d28d9; border: 2px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-regular-partex { background: #60a5fa; border: 2px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-regular-eurofins { background: #34d399; border: 2px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-regular-nomic { background: #a78bfa; border: 2px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-rerun { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-  .dot-rerun.partex { border: 2px solid #1d4ed8; }
-  .dot-rerun.eurofins { border: 2px solid #047857; }
-  .dot-rerun.nomic { border: 2px solid #6d28d9; }
-  .dot-recomm { background: #fb923c; border: 2px solid #fb923c; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-
-  /* Milestone labels */
-  .ms-label { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 11px; font-weight: 600; color: #4b5563; pointer-events: none; }
-  .ms-label .ms-date { font-weight: 400; color: #9ca3af; }
-
-  /* Today label */
-  .today-label-row { display: flex; }
-  .today-label-area { position: relative; flex: 1; height: 20px; }
-  .today-text { position: absolute; transform: translateX(-50%); font-size: 14px; font-weight: 700; color: #ef4444; }
-
-  /* Password overlay */
-  .pw-overlay { position: fixed; inset: 0; background: #f9fafb; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-  .pw-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 40px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
-  .pw-box h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-  .pw-box p { font-size: 13px; color: #6a6a6a; margin-bottom: 20px; }
-  .pw-box input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; }
-  .pw-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
-  .pw-box button { width: 100%; margin-top: 12px; padding: 10px; font-size: 14px; font-weight: 500; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
-  .pw-box button:hover { background: #2563eb; }
-  .pw-error { color: #dc2626; font-size: 12px; margin-top: 8px; display: none; }
-
-  @media print { body { background: #fff; } .pw-overlay { display: none !important; } }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f8f8; color: #231f20; }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-size: 24px; font-weight: 600; }
+  .subtitle { font-size: 13px; color: #6a6a6a; margin-top: 2px; }
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid #e5e7eb; margin: 16px 0 24px; }
+  .tab { padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: none;
+    color: #6a6a6a; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: #0777b3; border-bottom-color: #0777b3; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-bottom: 32px; }
+  .kpi-val { font-size: 42px; font-weight: 700; line-height: 1.1; }
+  .kpi-label { font-size: 13px; color: #6a6a6a; margin-top: 8px; }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .section-sub { font-size: 12px; color: #6a6a6a; margin-bottom: 12px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 4px; font-weight: 500; color: #6a6a6a; border-bottom: 2px solid #e5e7eb; }
+  th.r { text-align: right; }
+  td { padding: 6px 4px; border-bottom: 1px solid #f0f0f0; }
+  td.r { text-align: right; }
+  td.bold { font-weight: 600; }
+  td.gray { color: #6a6a6a; }
+  tr.total td { border-top: 2px solid #231f20; border-bottom: none; font-weight: 700; padding-top: 8px; }
+  .progress-bar { width: 100%; height: 10px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; }
+  .chart-wrap { position: relative; }
+  .inv-scroll { max-height: 320px; overflow-y: auto; }
+  .detail-toggle { display: flex; gap: 4px; margin-bottom: 12px; }
+  .detail-btn { padding: 4px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; }
+  .detail-btn.active { background: #0777b3; color: #fff; }
+  .detail-btn:not(.active) { background: #e5e7eb; color: #6a6a6a; }
+  .hidden { display: none; }
+  .prepay-bar { width: 100%; height: 12px; background: #e5e7eb; border-radius: 99px; margin-bottom: 12px; }
+  .prepay-fill { height: 12px; border-radius: 99px; background: #0777b3; }
+  .red { color: #bc1200; }
+  .green { color: #2d7a00; }
+  .blue { color: #0777b3; }
+  .orange { color: #e18727; }
+  .drilldown { margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: #fff; }
+  .drilldown-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .drilldown-header h3 { font-size: 15px; font-weight: 600; }
+  .drilldown-close { border: none; background: none; font-size: 18px; cursor: pointer; color: #6a6a6a; padding: 4px 8px; }
+  .drilldown-close:hover { color: #231f20; }
+  .drilldown table { font-size: 12px; }
+  .drilldown td, .drilldown th { padding: 5px 6px; }
+  .status-pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 500; }
+  .status-ip { background: #dbeafe; color: #1e40af; }
+  .status-qg { background: #fef3c7; color: #92400e; }
+  .status-comp { background: #d1fae5; color: #065f46; }
+  .status-qs { background: #ede9fe; color: #5b21b6; }
+  .status-nq { background: #f3f4f6; color: #6a6a6a; }
+  .click-hint { display: inline-block; font-size: 11px; color: #0777b3; margin-top: 6px; padding: 3px 12px; background: #eff6ff; border-radius: 99px; font-weight: 500; letter-spacing: .01em; }
+  .drill-sum { padding: 10px 6px; font-size: 13px; border-top: 2px solid #231f20; }
+  .drill-sum .count { color: #6a6a6a; font-weight: 400; }
+  .drilldown th input[type=checkbox], .drilldown td input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; accent-color: #0777b3; }
+  @media print { body { background: #fff; } .container { padding: 16px; } .pw-overlay { display:none!important; } }
+  .pw-overlay { position:fixed; inset:0; background:#f8f8f8; z-index:9999; display:flex; align-items:center; justify-content:center; }
+  .pw-box { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:40px; max-width:360px; width:100%; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,.08); }
+  .pw-box h2 { font-size:20px; font-weight:600; margin-bottom:4px; }
+  .pw-box p { font-size:13px; color:#6a6a6a; margin-bottom:20px; }
+  .pw-box input { width:100%; padding:10px 14px; font-size:14px; border:1px solid #d1d5db; border-radius:6px; outline:none; }
+  .pw-box input:focus { border-color:#0777b3; box-shadow:0 0 0 3px rgba(7,119,179,.15); }
+  .pw-box button { width:100%; margin-top:12px; padding:10px; font-size:14px; font-weight:500; background:#0777b3; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+  .pw-box button:hover { background:#065f91; }
+  .pw-error { color:#bc1200; font-size:12px; margin-top:8px; display:none; }
 </style>
 </head>
 <body>
-
-<!-- Password overlay -->
 <div class="pw-overlay" id="pwOverlay">
   <div class="pw-box">
-    <h2>CRO Study Tracker</h2>
-    <p>Enter password to view tracker</p>
+    <h2>CRO Budget Tracker</h2>
+    <p>Enter password to view dashboard</p>
     <input type="password" id="pwInput" placeholder="Password" autocomplete="off" autofocus>
     <button onclick="checkPw()">Unlock</button>
     <div class="pw-error" id="pwError">Incorrect password</div>
   </div>
 </div>
-
 <script>
-const PW_HASH='141fe80e0959e72574436d6ae4705fe44a0b7ed5076ae2d16e9923a968b07730';
+const PW_HASH='7244b4aa392a1b1b916fc856a9f1a1b51db83b028d7a192deed80fd52d914d10';
 async function sha256(s){const d=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 async function checkPw(){
   const v=document.getElementById('pwInput').value;
   if(await sha256(v)===PW_HASH){
     document.getElementById('pwOverlay').style.display='none';
-    sessionStorage.setItem('cro_study_auth','1');
+    sessionStorage.setItem('cro_auth','1');
   } else {
     document.getElementById('pwError').style.display='block';
     document.getElementById('pwInput').value='';
     document.getElementById('pwInput').focus();
   }
 }
-document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw()});
-if(sessionStorage.getItem('cro_study_auth')==='1') document.getElementById('pwOverlay').style.display='none';
+document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw();});
+if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay').style.display='none';
 </script>
+<div class="container">
+  <h1>CRO Budget Tracker</h1>
+  <p class="subtitle">Q4 2025 &ndash; Q1 2026 &bull; Updated 2026-03-12</p>
 
-<div class="container" id="app"></div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview')">Budget Overview</button>
+    <button class="tab" onclick="showTab('invoices')">Invoices &amp; Payments</button>
+  </div>
 
-<script>
-// ── Hardcoded sheet data ──
-const SHEET_DATA = {
-  "summary": [
-    ["axi_study_id","customer","n_compounds","date_cmpds","date_tv","date_phh","date_nomic","date_adme","date_adme_reruns","date_mt","total_days","working_days"],
-    ["iso_study_001","Isomorphic","50","March 9, 2026","March 21, 2026","March 24, 2026","March 27, 2026","March 16, 2026","March 20, 2026","March 13, 2026","18","15"]
-  ],
-  "partex": [
-    ["axi_study_id","customer","n_compounds","cro","assay","compounds_run","compound_arrival","date_cell_seed","date_cmpds_added","date_prod_end","date_images","date_data_transfer","date_supes_ship"],
-    ["iso_study_001","Isomorphic","50","Partex","Truvivo","1-50","March 9, 2026","March 12, 2026","March 17, 2026","March 19, 2026","March 20, 2026","March 21, 2026","March 20, 2026"],
-    ["iso_study_001","Isomorphic","50","Partex","2D PHH","1-50","March 9, 2026","March 16, 2026","March 17, 2026","March 23, 2026","March 23, 2026","March 24, 2026","NA"]
-  ],
-  "nomic": [
-    ["axi_study_id","customer","n_compounds","cro","panel","compounds_run","date_supes_ship","date_supes_arrive","date_exp_start","date_readout","date_data_sent"],
-    ["iso_study_001","Isomorphic","50","Partex","77-plex","1-50","March 20, 2026","March 23, 2026","March 24, 2026","March 26, 2026","March 27, 2026"]
-  ],
-  "eurofins": [
-    ["axi_study_id","customer","n_compounds","cro","assay","compounds_run","compound_arrival","compounds_aliquoted","date_prep","date_cmpds_added","date_inject","date_readout","date_data_transfer","date_reruns_commed","date_rerun_prep","date_rerun_inject","date_rerun_data_transfer","date_adme_reurns"],
-    ["iso_study_001","Isomorphic","50","Eurofins","LogD","1-50","March 5, 2026","March 9, 2026","March 10, 2026","","March 11, 2026","","March 12, 2026","March 13, 2026","March 16, 2026","March 17, 2026","March 18, 2026","March 20, 2026"],
-    ["iso_study_001","Isomorphic","50","Eurofins","Aq Sol","1-50","March 5, 2026","March 9, 2026","March 10, 2026","","March 11, 2026","","March 12, 2026","March 13, 2026","March 16, 2026","March 17, 2026","March 18, 2026"],
-    ["iso_study_001","Isomorphic","50","Eurofins","PPB","1-50","March 5, 2026","March 10, 2026","March 11, 2026","","March 12, 2026","","March 13, 2026","March 16, 2026","March 17, 2026","March 18, 2026","March 19, 2026"],
-    ["iso_study_001","Isomorphic","50","Eurofins","Clint","1-50","March 5, 2026","March 10, 2026","March 11, 2026","","March 12, 2026","","March 13, 2026","March 16, 2026","March 17, 2026","March 18, 2026","March 19, 2026"],
-    ["iso_study_001","Isomorphic","50","Eurofins","Caco2","1-50","March 5, 2026","March 10, 2026","March 12, 2026","March 12, 2026","March 13, 2026","","March 16, 2026","March 17, 2026","March 18, 2026","March 19, 2026","March 20, 2026"],
-    ["iso_study_001","Isomorphic","50","Eurofins","BSEP","1-50","March 5, 2026","March 10, 2026","March 11, 2026","","March 12, 2026","","March 13, 2026","March 16, 2026","March 17, 2026","March 18, 2026","March 19, 2026"],
-    ["iso_study_001","Isomorphic","50","Eurofins","Mito Tox","1-50","March 5, 2026","March 10, 2026","March 11, 2026","March 12, 2026","","March 13, 2026","March 13, 2026"],
-    ["iso_study_001","Isomorphic","50","Eurofins","RM","1-50","March 5, 2026","March 10, 2026","March 11, 2026","","March 13, 2026","March 14, 2026","March 16, 2026"]
-  ]
-};
+  <!-- ========== TAB 1: OVERVIEW ========== -->
+  <div id="tab-overview">
+    <div class="kpi-grid">
+      <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Committed</div></div>
+      <div><div class="kpi-val blue">$5.7M</div><div class="kpi-label">Axiom Training</div></div>
+      <div><div class="kpi-val orange">$1.8M</div><div class="kpi-label">Customer Work</div></div>
+      <div><div class="kpi-val">50</div><div class="kpi-label">Unique Quotes</div></div>
+    </div>
 
-// ── Parsing ──
-function parseDate(s) {
-  if (!s || s.trim() === '' || s.trim().toUpperCase() === 'NA') return null;
-  const d = new Date(s.trim());
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function rowsToMap(raw) {
-  if (raw.length < 2) return [];
-  const [header, ...data] = raw;
-  return data.map(row => Object.fromEntries(header.map((key, i) => [key, row[i] ?? ''])));
-}
-
-function parsePartexRows(raw) {
-  return rowsToMap(raw).map(r => {
-    const milestones = [
-      { label: 'Arrival', date: parseDate(r.compound_arrival), type: 'arrival' },
-      { label: 'Cell seed', date: parseDate(r.date_cell_seed), type: 'experiment-start' },
-      { label: 'Cmpds added', date: parseDate(r.date_cmpds_added), type: 'event' },
-      { label: 'Prod. end', date: parseDate(r.date_prod_end), type: 'experiment-end' },
-      { label: 'Images', date: parseDate(r.date_images), type: 'event' },
-      { label: 'Data', date: parseDate(r.date_data_transfer), type: 'data' }
-    ].filter(m => m.date !== null);
-    return { study_id: r.axi_study_id, customer: r.customer, cro: 'Partex', assay: r.assay, milestones, rerun_milestones: null };
-  });
-}
-
-function parseNomicRows(raw) {
-  return rowsToMap(raw).map(r => {
-    const milestones = [
-      { label: 'Ship', date: parseDate(r.date_supes_ship), type: 'arrival' },
-      { label: 'Arrive', date: parseDate(r.date_supes_arrive), type: 'event' },
-      { label: 'Exp. start', date: parseDate(r.date_exp_start), type: 'experiment-start' },
-      { label: 'Readout', date: parseDate(r.date_readout), type: 'experiment-end' },
-      { label: 'Data', date: parseDate(r.date_data_sent), type: 'data' }
-    ].filter(m => m.date !== null);
-    return { study_id: r.axi_study_id, customer: r.customer, cro: 'Nomic', assay: r.panel, milestones, rerun_milestones: null };
-  });
-}
-
-function parseEurofinsRows(raw) {
-  return rowsToMap(raw).map(r => {
-    const milestones = [
-      { label: 'Arrival', date: parseDate(r.compound_arrival), type: 'arrival' },
-      { label: 'Prep', date: parseDate(r.date_prep), type: 'experiment-start' },
-      { label: 'Inject', date: parseDate(r.date_inject), type: 'event' },
-      { label: 'Readout', date: parseDate(r.date_readout), type: 'event' },
-      { label: 'Data', date: parseDate(r.date_data_transfer), type: 'data' }
-    ].filter(m => m.date !== null);
-
-    const rerunPrep = parseDate(r.date_rerun_prep);
-    const rerunInject = parseDate(r.date_rerun_inject);
-    const rerunData = parseDate(r.date_rerun_data_transfer);
-    const rerunComm = parseDate(r.date_reruns_commed);
-    const rerun_milestones = [rerunPrep, rerunInject, rerunData, rerunComm].some(Boolean)
-      ? [
-          { label: 'Re-prep', date: rerunPrep, type: 'experiment-start' },
-          { label: 'Re-inject', date: rerunInject, type: 'event' },
-          { label: 'Re-data', date: rerunData, type: 'data' },
-          { label: 'Re-comm.', date: rerunComm, type: 'rerun-communication' }
-        ].filter(m => m.date !== null)
-      : null;
-
-    return { study_id: r.axi_study_id, customer: r.customer, cro: 'Eurofins', assay: r.assay, milestones, rerun_milestones };
-  });
-}
-
-function groupIntoStudies(rows, summaryRaw) {
-  const summaryRows = rowsToMap(summaryRaw);
-  const byStudy = new Map();
-  for (const row of rows) {
-    if (!byStudy.has(row.study_id)) byStudy.set(row.study_id, []);
-    byStudy.get(row.study_id).push(row);
-  }
-  return [...byStudy.entries()].map(([study_id, studyRows]) => {
-    const summary = summaryRows.find(s => s.axi_study_id === study_id);
-    return {
-      study_id,
-      customer: studyRows[0].customer,
-      n_compounds: parseInt(summary?.n_compounds ?? '0', 10),
-      total_days: parseInt(summary?.total_days ?? '0', 10),
-      working_days: parseInt(summary?.working_days ?? '0', 10),
-      rows: studyRows
-    };
-  });
-}
-
-// ── Chart helpers ──
-const DAY_MS = 86400000;
-const ROW_HEIGHT = 80;
-const CRO_LABEL_WIDTH = 40;
-const ASSAY_LABEL_WIDTH = 160;
-const CRO_ORDER = ['Partex', 'Eurofins', 'Nomic'];
-const MILESTONE_ORDER = { arrival: 0, 'experiment-start': 1, event: 2, 'experiment-end': 3, data: 4, 'rerun-communication': 5 };
-
-function studyDateRange(rows) {
-  const allDates = rows.flatMap(r => [...r.milestones, ...(r.rerun_milestones ?? [])]).map(m => m.date.getTime());
-  if (allDates.length === 0) return null;
-  return { start: new Date(Math.min(...allDates)), end: new Date(Math.max(...allDates)) };
-}
-
-function toPercent(date, start, totalMs) {
-  return ((date.getTime() - start.getTime()) / totalMs) * 100;
-}
-
-function isWeekend(date) { const d = date.getDay(); return d === 0 || d === 6; }
-
-function eachDay(start, end) {
-  const days = [];
-  const cur = new Date(start); cur.setHours(0,0,0,0);
-  const endTime = new Date(end); endTime.setHours(0,0,0,0);
-  while (cur.getTime() <= endTime.getTime()) { days.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
-  return days;
-}
-
-function formatAxisLabel(date) {
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-}
-
-function formatShortDate(date) {
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function assignLabelLevels(milestones, totalMs, rangeStart) {
-  if (milestones.length === 0) return [];
-  const pcts = milestones.map(m => toPercent(m.date, rangeStart, totalMs));
-  const levels = new Array(milestones.length).fill(0);
-  const THRESHOLD = 10;
-  for (let i = 1; i < pcts.length; i++) {
-    for (let level = 0; level < 4; level++) {
-      let collision = false;
-      for (let j = Math.max(0, i - 3); j < i; j++) {
-        if (levels[j] === level && Math.abs(pcts[i] - pcts[j]) < THRESHOLD) { collision = true; break; }
-      }
-      if (!collision) { levels[i] = level; break; }
-    }
-  }
-  return levels;
-}
-
-// ── Rendering ──
-let activeFilters = new Set(CRO_ORDER);
-
-function render() {
-  const allRows = [...parsePartexRows(SHEET_DATA.partex), ...parseNomicRows(SHEET_DATA.nomic), ...parseEurofinsRows(SHEET_DATA.eurofins)];
-  const studies = groupIntoStudies(allRows, SHEET_DATA.summary);
-  const app = document.getElementById('app');
-  app.innerHTML = '';
-
-  // Header
-  const header = document.createElement('div');
-  header.className = 'header';
-  header.innerHTML = '<h1>CRO Study Tracker</h1><span class="sync-info">Data as of: March 11, 2026</span>';
-  app.appendChild(header);
-
-  // Filters
-  const filtersDiv = document.createElement('div');
-  filtersDiv.className = 'filters';
-  filtersDiv.innerHTML = '<span class="label">Show:</span>';
-  CRO_ORDER.forEach(cro => {
-    const btn = document.createElement('button');
-    btn.className = 'filter-btn' + (activeFilters.has(cro) ? ' active' : '');
-    btn.innerHTML = `<span class="filter-dot dot-${cro.toLowerCase()}"></span>${cro}`;
-    btn.onclick = () => { if (activeFilters.has(cro)) activeFilters.delete(cro); else activeFilters.add(cro); render(); };
-    filtersDiv.appendChild(btn);
-  });
-  app.appendChild(filtersDiv);
-
-  // Studies
-  studies.forEach(study => {
-    const range = studyDateRange(study.rows);
-    if (!range) return;
-    const totalMs = range.end.getTime() - range.start.getTime() || DAY_MS;
-    const today = new Date();
-    const todayPct = toPercent(today, range.start, totalMs);
-    const days = eachDay(range.start, range.end);
-    const visibleRows = study.rows.filter(r => activeFilters.has(r.cro));
-    if (visibleRows.length === 0) return;
-
-    const card = document.createElement('div');
-    card.className = 'study-card';
-
-    // Study header
-    const sh = document.createElement('div');
-    sh.className = 'study-header';
-    sh.innerHTML = `
-      <div class="study-header-top">
-        <div>
-          <div class="study-title">${study.customer}</div>
-          <div class="study-sub">${study.study_id} &middot; ${study.n_compounds} compounds</div>
+    <div class="section">
+      <h2 class="section-title">Spend by Category</h2>
+      <p class="section-sub">Horizontal bar chart</p>
+      <div class="chart-wrap"><canvas id="catChart" height="160" style="cursor:pointer"></canvas></div>
+      <p class="click-hint">Click a bar to see quotes</p>
+      <div id="catDrilldown" class="drilldown hidden">
+        <div class="drilldown-header">
+          <h3 id="catDrillTitle">—</h3>
+          <button class="drilldown-close" onclick="closeDrilldown()">&times;</button>
         </div>
-        <div class="study-stats">
-          <div class="stat"><div class="stat-val">${study.total_days}</div><div class="stat-label">calendar days</div></div>
-          <div class="stat"><div class="stat-val">${study.working_days}</div><div class="stat-label">working days</div></div>
+        <div style="max-height:300px;overflow-y:auto">
+          <table>
+            <thead><tr><th><input type="checkbox" checked onchange="toggleAllCat(this)"></th><th>Quote ID</th><th>Assay</th><th>Compound Set</th><th>Vendor</th><th class="r">Compounds</th><th class="r">Cost</th><th>Status</th></tr></thead>
+            <tbody id="catDrillBody"></tbody>
+          </table>
+        </div>
+        <div class="drill-sum" id="catDrillSum"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="section">
+        <h2 class="section-title">Spend by Compound Set</h2>
+        <div class="chart-wrap"><canvas id="csChart" height="160" style="cursor:pointer"></canvas></div>
+        <p class="click-hint">Click a bar to see quotes</p>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Status Breakdown</h2>
+        <table>
+          <thead><tr><th>Status</th><th class="r">Quotes</th><th class="r">Spend</th></tr></thead>
+          <tbody>
+            <tr><td>In process</td><td class="r gray">18</td><td class="r bold">$4,598,541</td></tr>
+            <tr><td>Quote Generated</td><td class="r gray">22</td><td class="r bold">$2,289,440</td></tr>
+            <tr><td>Completed</td><td class="r gray">9</td><td class="r bold">$628,045</td></tr>
+            <tr><td>Quote Signed</td><td class="r gray">2</td><td class="r bold">$15,188</td></tr>
+            <tr><td>No Quote</td><td class="r gray">1</td><td class="r bold">$6,250</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="csDrilldown" class="drilldown hidden" style="margin-bottom:32px">
+      <div class="drilldown-header">
+        <h3 id="csDrillTitle">—</h3>
+        <button class="drilldown-close" onclick="closeCsDrilldown()">&times;</button>
+      </div>
+      <div style="max-height:300px;overflow-y:auto">
+        <table>
+          <thead><tr><th><input type="checkbox" checked onchange="toggleAllCs(this)"></th><th>Quote ID</th><th>Assay</th><th>Category</th><th>Vendor</th><th class="r">Compounds</th><th class="r">Cost</th><th>Status</th></tr></thead>
+          <tbody id="csDrillBody"></tbody>
+        </table>
+      </div>
+      <div class="drill-sum" id="csDrillSum"></div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 2: INVOICES ========== -->
+  <div id="tab-invoices" class="hidden">
+    <div class="kpi-grid">
+      <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Quoted</div></div>
+      <div><div class="kpi-val blue">$3.9M</div><div class="kpi-label">Total Invoiced (Gross)</div></div>
+      <div><div class="kpi-val green">$3.9M</div><div class="kpi-label">Total Payable (Net)</div></div>
+      <div><div class="kpi-val orange">52%</div><div class="kpi-label">% Invoiced</div></div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Quoted vs Invoiced by Vendor</h2>
+      <p class="section-sub">Stacked bar chart</p>
+      <div class="chart-wrap"><canvas id="vendorChart" height="300"></canvas></div>
+    </div>
+
+    <div class="three-col" style="margin-bottom:32px">
+      <div class="section">
+        <h2 class="section-title">Monthly Cash Flow</h2>
+        <div class="chart-wrap"><canvas id="cashChart" height="200"></canvas></div>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Eurofins Prepayment</h2>
+        <div style="font-size:12px;color:#6a6a6a;display:flex;justify-content:space-between;margin-bottom:4px">
+          <span>Consumed (15%)</span><span>$68,293 / $453,569</span>
+        </div>
+        <div class="prepay-bar"><div class="prepay-fill" style="width:15%"></div></div>
+        <table>
+          <tbody>
+            <tr><td class="gray">Prepaid</td><td class="r bold">$453,569</td></tr>
+            <tr><td class="gray">Consumed</td><td class="r bold red">$68,293</td></tr>
+            <tr style="border-top:1px solid #ccc"><td class="bold">Remaining</td><td class="r bold green">$385,276</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:4px">
+        <h2 class="section-title" id="detailTitle">Invoice Detail</h2>
+        <div class="detail-toggle">
+          <button class="detail-btn active" id="btnInv" onclick="showDetail('invoices')">Invoices</button>
+          <button class="detail-btn" id="btnPO" onclick="showDetail('progress')">By PO</button>
         </div>
       </div>
-      <div class="legend">
-        <span class="legend-item"><span class="legend-weekend"></span> Weekend</span>
-        <span class="legend-item"><span class="legend-dot"></span> Milestone</span>
-        <span class="legend-item"><span class="legend-rerun"></span> Rerun</span>
-        <span class="legend-item"><span class="legend-recomm"></span> Re-comm.</span>
-        <span class="legend-item"><span class="legend-today"></span> Today</span>
-      </div>`;
-    card.appendChild(sh);
 
-    // Chart area
-    const chartArea = document.createElement('div');
-    chartArea.className = 'chart-area';
+      <div id="detail-invoices" class="inv-scroll">
+        <table style="font-size:11px">
+          <thead><tr>
+            <th>Inv #</th><th>PO</th><th>Vendor</th><th>Date</th><th>Type</th>
+            <th class="r">Gross</th><th class="r">Credit</th><th class="r">Payable</th><th>Description</th>
+          </tr></thead>
+          <tbody id="invBody"></tbody>
+        </table>
+      </div>
 
-    // Date axis
-    const axisWrap = document.createElement('div');
-    axisWrap.style.paddingLeft = (CRO_LABEL_WIDTH + ASSAY_LABEL_WIDTH) + 'px';
-    const axis = document.createElement('div');
-    axis.className = 'date-axis';
-    const chartW = 900; // approximate
-    const labelInterval = Math.max(1, Math.ceil(days.length / Math.floor(chartW / 80)));
-    days.forEach((day, i) => {
-      if (i % labelInterval === 0) {
-        const pct = toPercent(day, range.start, totalMs);
-        const lbl = document.createElement('span');
-        lbl.className = 'date-label';
-        lbl.style.left = pct + '%';
-        lbl.textContent = formatAxisLabel(day);
-        axis.appendChild(lbl);
-      }
-    });
-    axisWrap.appendChild(axis);
-    chartArea.appendChild(axisWrap);
+      <div id="detail-progress" class="inv-scroll hidden">
+        <table style="font-size:11px">
+          <thead><tr>
+            <th>PO / Ref</th><th>Vendor</th><th class="r">Quoted</th><th class="r">Invoiced</th><th class="r">%</th><th style="width:120px">Progress</th>
+          </tr></thead>
+          <tbody id="poBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
-    // CRO groups
-    CRO_ORDER.forEach(cro => {
-      const croRows = visibleRows.filter(r => r.cro === cro);
-      if (croRows.length === 0) return;
+<script>
+const fmt = v => v >= 1e6 ? '$'+(v/1e6).toFixed(1)+'M' : v >= 1e3 ? '$'+(v/1e3).toFixed(0)+'K' : '$'+v.toFixed(0);
+const fmtFull = v => '$'+v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
 
-      const group = document.createElement('div');
-      group.className = 'cro-group';
+// Tab switching
+function showTab(t) {
+  document.getElementById('tab-overview').classList.toggle('hidden', t!=='overview');
+  document.getElementById('tab-invoices').classList.toggle('hidden', t!=='invoices');
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', (i===0&&t==='overview')||(i===1&&t==='invoices')));
+  if(t==='invoices' && !window._invChartsDrawn) { drawInvCharts(); window._invChartsDrawn=true; }
+}
 
-      // CRO label column
-      const croLabel = document.createElement('div');
-      croLabel.className = 'cro-label-col ' + cro.toLowerCase();
-      const croText = document.createElement('div');
-      croText.className = 'cro-label-text ' + cro.toLowerCase();
-      croText.textContent = cro;
-      croLabel.appendChild(croText);
-      group.appendChild(croLabel);
+function showDetail(v) {
+  document.getElementById('detail-invoices').classList.toggle('hidden', v!=='invoices');
+  document.getElementById('detail-progress').classList.toggle('hidden', v!=='progress');
+  document.getElementById('btnInv').classList.toggle('active', v==='invoices');
+  document.getElementById('btnPO').classList.toggle('active', v==='progress');
+  document.getElementById('detailTitle').textContent = v==='invoices' ? 'Invoice Detail' : 'Quote-to-Invoice Progress';
+}
 
-      // Assay rows
-      const rowsDiv = document.createElement('div');
-      rowsDiv.className = 'assay-rows';
+// Quotes data for drill-down [quote_id, category, assay, compound_set, vendor, description, num_compounds, total_cost, status]
+const allQuotes = [
+  ["EX-001","Annotations","Clinical data","Axiom Training","Excelra",null,null,86400,"In process"],
+  ["EX-002","Annotations","ADME processing (100 hours)","Axiom Training","Excelra",null,null,6250,"No Quote"],
+  ["IMERIT-001","Annotations","Image Annotations Pilot","Axiom Training","iMerit","Image annotations",null,1200,"Quote Signed"],
+  ["AW-20693","Cell Assays","2D+ Truvivo (Labor + Reagents)","Axiom Training","Partex","Full prod run, 2150 training compounds",2150,818766.31,"In process"],
+  ["AW-20693","Cell Assays","2D+ Truvivo (Cells)","Axiom Training","Partex","Full prod run, 2150 training compounds",2150,470380.76,"In process"],
+  ["AW-20693-ISO","Cell Assays","2D+ Truvivo (Labor + Reagents) — ISO","Isomorphic","Partex","Isomorphic allocation (50 of 2200 cmpds)",50,19041,"In process"],
+  ["AW-20693-ISO","Cell Assays","2D+ Truvivo (Cells) — ISO","Isomorphic","Partex","Isomorphic allocation (50 of 2200 cmpds)",50,10939,"In process"],
+  ["PTX-TRUV-CELLS","Cell Assays","2D+ Truvivo (Cells)","Axiom Training","Partex","Cells for 8 future production runs",null,447670,"Quote Generated"],
+  ["AW-20695-GNE","Cell Assays","2D+ Truvivo (Cells)","Genentech","Partex","700 GNE compounds",700,321651.24,"In process"],
+  ["AW-20695-GNE","Cell Assays","2D+ Truvivo (Labor + Reagents)","Genentech","Partex","700 GNE compounds",700,281251.25,"In process"],
+  ["PTX-1783","Cell Assays","2D PHH (Cells)","Axiom Training","Partex","Cells for 8 future production runs",null,178635.6,"Quote Generated"],
+  ["AW-20700","Cell Assays","2D+ Truvivo Donor Testing","Axiom Training","Partex","Quantification of 10 Truvivo donors + BA/LPS testing",null,137940,"In process"],
+  ["AW-20695-BI","Cell Assays","2D+ Truvivo (Cells)","BI","Partex","300 BI compounds",347,137850.53,"In process"],
+  ["AW-20695-BI","Cell Assays","2D+ Truvivo (Labor + Reagents)","BI","Partex","300 BI compounds",347,120536.25,"In process"],
+  ["AW-20703","Cell Assays","2D+ Truvivo (Labor + Reagents)","Axiom Training","Partex","Additional 250 training compounds",250,114775,"In process"],
+  ["AW-20694-GNE","Cell Assays","2D PHH (Labor + Reagents)","Genentech","Partex","700 GNE compounds",700,82118.75,"In process"],
+  ["AW-20706-GNE","Cell Assays","2D PHH NEW DONOR (Labor + Reagents)","Genentech","Partex","New donor PHH prod run, 700 GNE compounds",700,75118.75,"Quote Generated"],
+  ["AW-20699","Cell Assays","2D PHH (Labor + Reagents)","Axiom Training","Partex","Full prod run, 650 training compounds",650,67217,"Quote Generated"],
+  ["AW-20699-ISO","Cell Assays","2D PHH (Labor + Reagents) — ISO","Isomorphic","Partex","Isomorphic allocation (50 of 700 cmpds)",50,5170.5,"Quote Generated"],
+  ["AW-20694-BI","Cell Assays","2D PHH (Labor + Reagents)","BI","Partex","300 BI compounds",347,35193.75,"In process"],
+  ["AW-20706-BI","Cell Assays","2D PHH NEW DONOR (Labor + Reagents)","BI","Partex","New donor PHH prod run, 300 BI compounds",300,32193.75,"Quote Generated"],
+  ["AW-20699","Cell Assays","2D PHH (Cells)","Axiom Training","Partex","Full prod run, 650 training compounds",650,22285.5,"Quote Generated"],
+  ["AW-20699-ISO","Cell Assays","2D PHH (Cells) — ISO","Isomorphic","Partex","Isomorphic allocation (50 of 700 cmpds)",50,1714.5,"Quote Generated"],
+  ["AW-20694-GNE","Cell Assays","2D PHH (Cells)","Genentech","Partex","700 GNE compounds",700,17500,"In process"],
+  ["AW-20705","Cell Assays","2D PHH (Test PHH lots LOC and UWM)","Axiom Training","Partex","Test PHH lots LOC and UWM",null,9985,"Quote Generated"],
+  ["AW-20694-BI","Cell Assays","2D PHH (Cells)","BI","Partex","300 BI compounds",347,7500,"In process"],
+  ["MCE-Q4-TRAIN","Compound Sourcing","ADME/mito tox/spheroids/RM/PHH/Truvivo","Axiom Training","MCE","Clinical labels",1600,208354,"Completed"],
+  ["MCE-Q1-MIXED","Compound Sourcing","ADME/mito tox/RM/GSH/PHH/Truvivo","Axiom Training","MCE","Benchmark + Customer + GSH validation",363,109930,"Completed"],
+  ["MCE-FDA","Compound Sourcing","ADME/mito tox/spheroids/RM/PHH/Truvivo","Axiom Training","MCE","FDA clinical",429,51200,"Completed"],
+  ["MCE-BTK","Compound Sourcing","BTK + Obesity","Axiom Training","MCE","BTK+Obesity 43 liquid + 5 solid",48,13278,"Quote Generated"],
+  ["MCE-EXTRA","Compound Sourcing","Replacement compounds","Axiom Training","MCE","40 liquid + 10 solid — Partex",50,1952,"Quote Generated"],
+  ["MCULE-Q4","Compound Sourcing","ADME/mito tox/spheroids/RM/PHH/Truvivo","Axiom Training","MCule","Clinical labels",60,25402.42,"Completed"],
+  ["SELLECK-Q4","Compound Sourcing","ADME/mito tox/spheroids/RM/PHH/Truvivo","Axiom Training","Selleck","Clinical labels",94,19430,"Completed"],
+  ["WUXI-MCE-PILOT","Compound Sourcing","T1 ADME Pilot","Axiom Training","WuXi/MCE","5mg powder",191,5153,"Completed"],
+  ["PTX-1778","Instruments","2D PHH + Truvivo","Axiom Training","Partex","New liquid handler + incubator",null,275000,"Quote Generated"],
+  ["EF-ADME-SCALE","Off-the-Shelf ADME + MitoTox","T1 ADME Scale up","Axiom Training","Eurofins","Sol, Caco2, LogD, IC, PPB",2519,874697.56,"In process"],
+  ["EF-ADME-GNE","Off-the-Shelf ADME + MitoTox","T1 ADME","Genentech","Eurofins",null,700,243068,"Quote Generated"],
+  ["EF-ADME-BI","Off-the-Shelf ADME + MitoTox","T1 ADME","BI","Eurofins",null,347,120492.28,"In process"],
+  ["WUXI-PILOT","Off-the-Shelf ADME + MitoTox","T1 ADME Pilot","Axiom Training","WuXi",null,191,95500,"Completed"],
+  ["WUXI-ADME-PILOT2","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","WuXi","Sol, Caco2, LogD, Microsome Stability, PPB, RM",50,35000,"Quote Generated"],
+  ["PHAR-ADME-PILOT","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","Pharmaron","LogD, Sol, Stability, PPB, Caco2, MetTrap",50,37000,"Quote Generated"],
+  ["EF-BSEP-SCALE","Off-the-Shelf ADME + MitoTox","BSEP Scale up","Axiom Training","Eurofins","2 conc, n=2, 4 vehicle ATP/AMP, cyclosporine",400,75528,"Quote Generated"],
+  ["EF-MT-GNE","Off-the-Shelf ADME + MitoTox","Mito Tox","Genentech","Eurofins",null,700,56840,"Quote Generated"],
+  ["EF-MT-TRANS","Off-the-Shelf ADME + MitoTox","Mito Tox (Transporters/Bio)","Axiom Training","Eurofins","7 conc, n=3, HepG2",400,46000,"Quote Generated"],
+  ["EF-BSEP-PILOT","Off-the-Shelf ADME + MitoTox","BSEP Pilot (7pt dosage curve)","Axiom Training","Eurofins",null,52,41236.52,"Quote Generated"],
+  ["EF-ISO-PANEL","Off-the-Shelf ADME + MitoTox","Isomorphic Full Panel","Axiom Training","Eurofins","Sol, Caco2, LogD, IC, PPB, RM (GSH), BSEP",50,35803,"Quote Generated"],
+  ["EF-MITO-AUTO","Off-the-Shelf ADME + MitoTox","Mito Tox Automation Pilot","Axiom Training","Eurofins",null,null,34978,"In process"],
+  ["EF-RM-PILOT","Off-the-Shelf ADME + MitoTox","Reactive Metabolites Pilot","Axiom Training","Eurofins",null,200,34740,"Completed"],
+  ["EF-SPHEROIDS","Off-the-Shelf ADME + MitoTox","Spheroids Pilot","Axiom Training","Eurofins",null,186,33552.54,"In process"],
+  ["EF-MT-BI","Off-the-Shelf ADME + MitoTox","Mito Tox","BI","Eurofins",null,347,28176.4,"In process"],
+  ["EF-ISO-MT","Off-the-Shelf ADME + MitoTox","Mito Tox Isomorphic Pilot","Axiom Training","Eurofins","7 conc, n=3, HepG2",50,5750,"Quote Generated"],
+  ["NOMIC-SCALE","Proteomics","Nomic Scale up (77-plex)","Axiom Training","Nomic","88 plates (384wp)",null,596761.41,"In process"],
+  ["NOMIC-60EXTRA","Proteomics","Nomic (77-plex)","Axiom Training","Nomic","60 plates",null,576000,"Quote Generated"],
+  ["NOMIC-GNE","Proteomics","Nomic (77-plex)","Genentech","Nomic",null,700,165832.87,"In process"],
+  ["NOMIC-BI","Proteomics","Nomic (77-plex)","BI","Nomic",null,347,82205.72,"In process"],
+  ["NOMIC-PILOT","Proteomics","Nomic Pilot (1000-plex)","Axiom Training","Nomic","3 plates (384wp)",null,78336,"Completed"],
+  ["ALI-20704","Transcriptomics","DRUG-seq mRNA seq Pilot","Axiom Training","Alithea","2 plates (384wp)",null,13988,"Quote signed"],
+  ["AW-20711","Transcriptomics","DRUG-seq Alithea Pilot Repeat","Axiom Training","Partex","Repeat of pilot plate, 2x384wp DRUG-seq + NGS",null,6994,"Quote Generated"]
+];
 
-      croRows.forEach(row => {
-        const rowEl = document.createElement('div');
-        rowEl.className = 'assay-row' + (row.rerun_milestones && row.rerun_milestones.length > 0 ? ' has-reruns' : '');
+const catLabels = ['Cell Assays','Off-the-Shelf ADME + MitoTox','Proteomics','Compound Sourcing','Instruments','Annotations','Transcriptomics'];
 
-        // Assay name
-        const nameEl = document.createElement('div');
-        nameEl.className = 'assay-name';
-        nameEl.textContent = row.assay;
-        rowEl.appendChild(nameEl);
+function statusPill(s) {
+  const cls = s==='In process'?'status-ip':s==='Quote Generated'?'status-qg':s==='Completed'?'status-comp':(s==='Quote signed'||s==='Quote Signed')?'status-qs':'status-nq';
+  return '<span class="status-pill '+cls+'">'+s+'</span>';
+}
 
-        // Timeline
-        const tl = document.createElement('div');
-        tl.className = 'timeline';
+function showCatDrilldown(catName) {
+  const rows = allQuotes.filter(q => q[1] === catName);
+  const body = document.getElementById('catDrillBody');
+  document.getElementById('catDrillTitle').textContent = catName + ' \u2014 ' + rows.length + ' line items';
+  body.innerHTML = '';
+  rows.forEach(r => {
+    body.innerHTML += '<tr>' +
+      '<td><input type="checkbox" checked data-cost="'+r[7]+'" onchange="updateCatSum()"></td>' +
+      '<td class="bold">'+r[0]+'</td>' +
+      '<td>'+r[2]+'</td>' +
+      '<td class="gray">'+r[3]+'</td>' +
+      '<td class="gray">'+r[4]+'</td>' +
+      '<td class="r gray">'+(r[6]!=null?r[6].toLocaleString():'\u2014')+'</td>' +
+      '<td class="r bold">'+fmtFull(r[7])+'</td>' +
+      '<td>'+statusPill(r[8])+'</td>' +
+    '</tr>';
+  });
+  document.querySelector('#catDrilldown thead input[type=checkbox]').checked = true;
+  updateCatSum();
+  document.getElementById('catDrilldown').classList.remove('hidden');
+  document.getElementById('catDrilldown').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 
-        // All milestones merged + sorted for label staggering
-        const allMs = [...row.milestones, ...(row.rerun_milestones ?? [])].sort((a, b) => a.date.getTime() - b.date.getTime());
-        const levels = assignLabelLevels(allMs, totalMs, range.start);
-        const levelMap = new Map(allMs.map((m, i) => [m, levels[i]]));
+function updateCatSum() {
+  const checks = document.querySelectorAll('#catDrillBody input[type=checkbox]');
+  let sum = 0, count = 0;
+  checks.forEach(c => { if(c.checked){ sum += parseFloat(c.dataset.cost); count++; } });
+  document.getElementById('catDrillSum').innerHTML = '<strong>'+fmtFull(Math.round(sum))+'</strong> <span class="count">('+count+' of '+checks.length+' selected)</span>';
+}
 
-        // Weekend bars
-        days.forEach(day => {
-          if (isWeekend(day)) {
-            const pct = toPercent(day, range.start, totalMs);
-            const widthPct = (DAY_MS / totalMs) * 100;
-            const wb = document.createElement('div');
-            wb.className = 'weekend-bar';
-            wb.style.left = pct + '%';
-            wb.style.width = `calc(${widthPct}% - 6px)`;
-            tl.appendChild(wb);
-          }
-        });
+function toggleAllCat(master) {
+  document.querySelectorAll('#catDrillBody input[type=checkbox]').forEach(c => c.checked = master.checked);
+  updateCatSum();
+}
 
-        // Today line
-        if (todayPct >= 0 && todayPct <= 100) {
-          const tline = document.createElement('div');
-          tline.className = 'today-line';
-          tline.style.left = todayPct + '%';
-          tl.appendChild(tline);
-        }
+function closeDrilldown() {
+  document.getElementById('catDrilldown').classList.add('hidden');
+}
 
-        // Main bar
-        const sorted = [...row.milestones].sort((a, b) => MILESTONE_ORDER[a.type] - MILESTONE_ORDER[b.type]);
-        const barStart = sorted.find(m => m.type === 'experiment-start' || m.type === 'arrival');
-        const barEnd = [...sorted].reverse().find(m => m.type === 'data');
-        if (barStart && barEnd) {
-          const leftPct = toPercent(barStart.date, range.start, totalMs);
-          const rightPct = toPercent(barEnd.date, range.start, totalMs);
-          const bar = document.createElement('div');
-          bar.className = 'gantt-bar ' + row.cro.toLowerCase();
-          bar.style.left = leftPct + '%';
-          bar.style.width = (rightPct - leftPct) + '%';
-          tl.appendChild(bar);
-        }
+const csLabels = ['Axiom Training','Genentech','BI','Isomorphic'];
+const isoQuoteIds = ['EF-ISO-MT','EF-ISO-PANEL'];
 
-        // Rerun bar + dots
-        if (row.rerun_milestones && row.rerun_milestones.length >= 2) {
-          const rs = row.rerun_milestones[0];
-          const re = row.rerun_milestones[row.rerun_milestones.length - 1];
-          const leftPct = toPercent(rs.date, range.start, totalMs);
-          const rightPct = toPercent(re.date, range.start, totalMs);
-          const rbar = document.createElement('div');
-          rbar.className = 'gantt-bar ' + row.cro.toLowerCase();
-          rbar.style.left = leftPct + '%';
-          rbar.style.width = (rightPct - leftPct) + '%';
-          rbar.style.opacity = '0.2';
-          tl.appendChild(rbar);
+function showCsDrilldown(setName) {
+  let rows;
+  if (setName === 'Isomorphic') {
+    rows = allQuotes.filter(q => q[3] === 'Isomorphic' || isoQuoteIds.includes(q[0]));
+  } else if (setName === 'Axiom Training') {
+    rows = allQuotes.filter(q => q[3] === 'Axiom Training' && !isoQuoteIds.includes(q[0]));
+  } else {
+    rows = allQuotes.filter(q => q[3] === setName);
+  }
+  const body = document.getElementById('csDrillBody');
+  document.getElementById('csDrillTitle').textContent = setName + ' \u2014 ' + rows.length + ' line items';
+  body.innerHTML = '';
+  rows.forEach(r => {
+    body.innerHTML += '<tr>' +
+      '<td><input type="checkbox" checked data-cost="'+r[7]+'" onchange="updateCsSum()"></td>' +
+      '<td class="bold">'+r[0]+'</td>' +
+      '<td>'+r[2]+'</td>' +
+      '<td class="gray">'+r[1]+'</td>' +
+      '<td class="gray">'+r[4]+'</td>' +
+      '<td class="r gray">'+(r[6]!=null?r[6].toLocaleString():'\u2014')+'</td>' +
+      '<td class="r bold">'+fmtFull(r[7])+'</td>' +
+      '<td>'+statusPill(r[8])+'</td>' +
+    '</tr>';
+  });
+  document.querySelector('#csDrilldown thead input[type=checkbox]').checked = true;
+  updateCsSum();
+  document.getElementById('csDrilldown').classList.remove('hidden');
+  document.getElementById('csDrilldown').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 
-          row.rerun_milestones.forEach(ms => {
-            const pct = toPercent(ms.date, range.start, totalMs);
-            const level = levelMap.get(ms) ?? 0;
-            // Dot
-            const dot = document.createElement('div');
-            dot.className = ms.type === 'rerun-communication' ? 'milestone-dot dot-recomm' : 'milestone-dot dot-rerun ' + row.cro.toLowerCase();
-            dot.style.left = pct + '%';
-            tl.appendChild(dot);
-            // Label
-            const lbl = document.createElement('div');
-            lbl.className = 'ms-label';
-            lbl.style.left = pct + '%';
-            lbl.style.bottom = `calc(50% + ${10 + level * 18}px)`;
-            lbl.innerHTML = `${ms.label} <span class="ms-date">${formatShortDate(ms.date)}</span>`;
-            tl.appendChild(lbl);
-          });
-        }
+function updateCsSum() {
+  const checks = document.querySelectorAll('#csDrillBody input[type=checkbox]');
+  let sum = 0, count = 0;
+  checks.forEach(c => { if(c.checked){ sum += parseFloat(c.dataset.cost); count++; } });
+  document.getElementById('csDrillSum').innerHTML = '<strong>'+fmtFull(Math.round(sum))+'</strong> <span class="count">('+count+' of '+checks.length+' selected)</span>';
+}
 
-        // Regular milestones
-        row.milestones.forEach(ms => {
-          const pct = toPercent(ms.date, range.start, totalMs);
-          const level = levelMap.get(ms) ?? 0;
-          // Dot
-          const dot = document.createElement('div');
-          if (ms.type === 'data') dot.className = 'milestone-dot dot-data-' + row.cro.toLowerCase();
-          else if (ms.type === 'arrival') dot.className = 'milestone-dot dot-arrival';
-          else dot.className = 'milestone-dot dot-regular-' + row.cro.toLowerCase();
-          dot.style.left = pct + '%';
-          tl.appendChild(dot);
-          // Label
-          const lbl = document.createElement('div');
-          lbl.className = 'ms-label';
-          lbl.style.left = pct + '%';
-          lbl.style.bottom = `calc(50% + ${10 + level * 18}px)`;
-          lbl.innerHTML = `${ms.label} <span class="ms-date">${formatShortDate(ms.date)}</span>`;
-          tl.appendChild(lbl);
-        });
+function toggleAllCs(master) {
+  document.querySelectorAll('#csDrillBody input[type=checkbox]').forEach(c => c.checked = master.checked);
+  updateCsSum();
+}
 
-        rowEl.appendChild(tl);
-        rowsDiv.appendChild(rowEl);
-      });
+function closeCsDrilldown() {
+  document.getElementById('csDrilldown').classList.add('hidden');
+}
 
-      group.appendChild(rowsDiv);
-      chartArea.appendChild(group);
-    });
+// Category chart
+const catChart = new Chart(document.getElementById('catChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Cell Assays','Off-the-Shelf ADME + MitoTox','Proteomics','Compound Sourcing','Instruments','Annotations','Transcriptomics'],
+    datasets: [{ data: [3415434,1798362,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
+  },
+  options: { indexAxis:'y', responsive:true,
+    onClick: (evt, elements) => { if(elements.length){ showCatDrilldown(catLabels[elements[0].index]); } },
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)}}},
+    scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}},y:{ticks:{font:{size:11}},grid:{display:false}}} }
+});
 
-    // Today label
-    if (todayPct >= 0 && todayPct <= 100) {
-      const todayRow = document.createElement('div');
-      todayRow.className = 'today-label-row';
-      todayRow.style.paddingLeft = (CRO_LABEL_WIDTH + ASSAY_LABEL_WIDTH) + 'px';
-      const todayArea = document.createElement('div');
-      todayArea.className = 'today-label-area';
-      const todayText = document.createElement('span');
-      todayText.className = 'today-text';
-      todayText.style.left = todayPct + '%';
-      todayText.textContent = 'TODAY';
-      todayArea.appendChild(todayText);
-      todayRow.appendChild(todayArea);
-      chartArea.appendChild(todayRow);
-    }
+// Compound set horizontal bar
+new Chart(document.getElementById('csChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Axiom Training','Genentech','BI','Isomorphic'],
+    datasets: [{ data: [5651517,1243381,564149,78418], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
+  },
+  options: { indexAxis:'y', responsive:true,
+    onClick: (evt, elements) => { if(elements.length){ showCsDrilldown(csLabels[elements[0].index]); } },
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7537465*100).toFixed(1)+'%)'}}},
+    scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}},y:{ticks:{font:{size:12}},grid:{display:false}}} }
+});
 
-    card.appendChild(chartArea);
-    app.appendChild(card);
+// Invoice charts (lazy)
+function drawInvCharts() {
+  // Vendor stacked bar
+  const vendors = ['Partex','Eurofins','Nomic','MCE','WuXi','Excelra','Pharmaron','MCule','Selleck','Alithea','WuXi/MCE','iMerit'];
+  const quoted = [3697428,1630862,1499136,384714,130500,92650,37000,25402,19430,13988,5153,1200];
+  const invoiced = [3038861,521862,0,367858,0,0,0,0,0,0,0,0];
+  const remaining = quoted.map((q,i) => q - invoiced[i]);
+
+  new Chart(document.getElementById('vendorChart'), {
+    type: 'bar',
+    data: {
+      labels: vendors,
+      datasets: [
+        { label:'Invoiced (Gross)', data:invoiced, backgroundColor:'#0777b3', borderRadius:0 },
+        { label:'Remaining', data:remaining, backgroundColor:'#e5e7eb', borderRadius:{topLeft:0,topRight:4,bottomRight:4,bottomLeft:0} }
+      ]
+    },
+    options: { indexAxis:'y', responsive:true, scales:{x:{stacked:true,ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}},y:{stacked:true,ticks:{font:{size:12}},grid:{display:false}}},
+      plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtFull(c.raw)}},legend:{labels:{font:{size:11}}}} }
+  });
+
+  // Monthly cash flow
+  new Chart(document.getElementById('cashChart'), {
+    type: 'bar',
+    data: {
+      labels: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'],
+      datasets: [
+        { label:'Cash Out', data: [181758,1721963,641023,925872,389672,0,0], backgroundColor:'#0777b3', borderRadius:4 },
+        { label:'Gross Invoiced', data: [181758,1721963,690861,925872,408126,0,0], backgroundColor:'#e5e7eb', borderRadius:4 },
+        { label:'Projected', data: [0,0,0,0,0,170075,72000], backgroundColor:'rgba(7,119,179,0.2)', borderColor:'#0777b3', borderWidth:1, borderRadius:4 }
+      ]
+    },
+    options: { responsive:true, scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}}},
+      plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtFull(c.raw)}},legend:{labels:{font:{size:11}}}} }
   });
 }
 
-render();
+// Invoice detail table
+const invoices = [
+  ["1790","20704","Partex","2026-02-28","FD",6994,0,6994,"Alithea Pilot DRUG-seq"],
+  ["1791","20705","Partex","2026-02-28","FD",6985,0,6985,"Test PHH lots LOC and UWM"],
+  ["1792","20705","Partex","2026-02-28","Materials",3000,0,3000,"PHH lot testing boutique materials"],
+  ["1793","20703","Partex","2026-02-28","FD",104775,0,104775,"Truvivo additional 250 cmpds"],
+  ["1794","20703","Partex","2026-02-28","Materials",10000,0,10000,"Truvivo additional 250 boutique materials"],
+  ["1795","20695","Partex","2026-02-28","FD",195482,0,195482,"Truvivo customer compounds (57 FD)"],
+  ["1796","20695","Partex","2026-02-28","Materials",25000,0,25000,"Truvivo customer boutique materials"],
+  ["1797","20700","Partex","2026-02-28","FD",27436,0,27436,"Truvivo donor testing (8 FD)"],
+  ["1798","20700","Partex","2026-02-28","Materials",10000,0,10000,"Truvivo donor testing boutique materials"],
+  ["US034-0023098","US034-0028902-O","Eurofins","2026-02-23","Assay Services",18454,-18454,0,"RM credit + Spheroids 186 samples"],
+  ["1778","20707","Partex","2026-01-31","Materials",275000,0,275000,"Capacity expansion - liquid handler + incubator"],
+  ["1780","20693","Partex","2026-01-31","FD",260642,0,260642,"Truvivo (76 FD)"],
+  ["1781","20693","Partex","2026-01-31","Materials",32875,0,32875,"Truvivo materials"],
+  ["1782","20694","Partex","2026-01-31","FD",68590,0,68590,"2D PHH (20 FD)"],
+  ["1783","20694","Partex","2026-01-31","Materials",178636,0,178636,"PHH cells for 8 production runs"],
+  ["M2596887","2025122408609","MCE","2026-01-13","Compound Sourcing",55335,0,55335,"363 cmpds to Eurofins"],
+  ["M2596902","2025122407730-2","MCE","2026-01-13","Compound Sourcing",54795,0,54795,"363 cmpds to Partex"],
+  ["1776","20693","Partex","2025-12-31","FD",130321,0,130321,"Truvivo Prod Run (38 FD)"],
+  ["1777","20695","Partex","2025-12-31","Materials",459502,0,459502,"Truvivo customer run cells + boutique materials"],
+  ["US034-0022711","US034-0028902-O","Eurofins","2025-12-31","Assay Services",49838,-49838,0,"Reactive metabolite cocktail trapping, 193 samples"],
+  ["M2588483","2025110601750-11-18-1","MCE","2025-12-02","Compound Sourcing",32075,0,32075,"429 FDA cmpds to Eurofins"],
+  ["M2588484","2025110601750-11-18-2","MCE","2025-12-02","Compound Sourcing",19125,0,19125,"429 FDA cmpds to Partex"],
+  ["1765","20693","Partex","2025-11-30","FD",288078,0,288078,"Truvivo Full Prod Runs (84 FD)"],
+  ["1766","20693","Partex","2025-11-30","Materials",75000,0,75000,"Boutique materials"],
+  ["1767","20694","Partex","2025-11-30","FD",17148,0,17148,"2D PHH Validation (5 FD)"],
+  ["1768","20694","Partex","2025-11-30","Materials",25000,0,25000,"PHH culture medium, LDH, MT-Glo and dyes"],
+  ["1769","20695","Partex","2025-11-30","FD",130321,0,130321,"Truvivo Customer Compounds (38 FD)"],
+  ["1770","20695","Partex","2025-11-30","Materials",45000,0,45000,"Boutique materials"],
+  ["M2584696","2025110601750-2","MCE","2025-11-19","Compound Sourcing",79666,0,79666,"1600 cmpds to Partex"],
+  ["M2584452","2025110601750","MCE","2025-11-18","Compound Sourcing",126862,0,126862,"1600 cmpds to Eurofins"],
+  ["US034-0022367","US034-0028902-O","Eurofins","2025-11-13","Prepayment",453569,0,453569,"50% prepayment on ADME+MitoTox umbrella"],
+  ["1761","20693","Partex","2025-11-09","Materials",481320,0,481320,"Truvivo Prod Run cells + Nomic media"],
+  ["1757","20686","Partex","2025-10-31","FD",27770,0,27770,"Truvivo Exp 11"],
+  ["1758","20686","Partex","2025-10-31","Materials",4700,0,4700,"Truvivo Exp 11 materials"],
+  ["1759","20691","Partex","2025-10-31","FD",100000,0,100000,"Sandwich Exp 1-4"],
+  ["1760","20691","Partex","2025-10-31","Materials",22601,0,22601,"Sandwich Exp 1-4 materials"],
+  ["1754","20686","Partex","2025-10-15","Materials",26688,0,26688,"ELISA Kit, human albumin"]
+];
+
+let totalGross=0,totalCredit=0,totalPayable=0;
+const invBody = document.getElementById('invBody');
+invoices.forEach(r => {
+  totalGross+=r[5]; totalCredit+=r[6]; totalPayable+=r[7];
+  const typeColor = r[4]==='FD'?'#0777b3':r[4]==='Materials'?'#e18727':'#2d7a00';
+  invBody.innerHTML += `<tr>
+    <td>${r[0]}</td><td class="gray">${r[1]}</td><td class="gray">${r[2]}</td><td class="gray">${r[3]}</td>
+    <td style="color:${typeColor}">${r[4]}</td>
+    <td class="r bold">${fmtFull(r[5])}</td>
+    <td class="r" style="color:${r[6]?'#bc1200':'#6a6a6a'}">${r[6]?fmtFull(r[6]):'\u2014'}</td>
+    <td class="r bold">${fmtFull(r[7])}</td>
+    <td class="gray" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r[8]}</td>
+  </tr>`;
+});
+invBody.innerHTML += `<tr class="total">
+  <td colspan="5">TOTAL (${invoices.length} invoices)</td>
+  <td class="r">${fmtFull(totalGross)}</td>
+  <td class="r red">${fmtFull(totalCredit)}</td>
+  <td class="r">${fmtFull(totalPayable)}</td><td></td>
+</tr>`;
+
+// PO progress table
+const pos = [
+  ["20693","Partex",1319127,1268236,96.1],["US034-0028902-Q02","Eurofins",1306550,521862,39.9],
+  ["20695","Partex",861289,855304,99.3],["25-00704","Nomic",844800,0,0],
+  ["26-00078","Nomic",576000,0,0],["20003798","Partex",447670,0,0],
+  ["20694","Partex",320948,289373,90.2],["20707","Partex",275000,275000,100],
+  ["M2584452/M2584696","MCE",208354,206528,99.1],["20700","Partex",137940,37436,27.1],
+  ["20703","Partex",114775,114775,100],["2025122408609","MCE",109930,110130,100],
+  ["20706","Partex",107313,0,0],["20699","Partex",96388,0,0],
+  ["AXIB-20250819-ANaJ","WuXi",95500,0,0],["US034-0028928-Q03","Eurofins",85016,0,0],
+  ["25-00690","Nomic",78336,0,0],["US034-0029837-Q01","Eurofins",75528,0,0],
+  ["M2588483/M2588484","MCE",51200,51200,100],["M2619561","MCE",13278,0,0],
+  ["M2616664","MCE",1952,0,0],["US034-0029841-Q01","Eurofins",46000,0,0],
+  ["US034-0029617-Q01","Eurofins",41237,0,0],["US034-0029576-Q04","Eurofins",35803,0,0],
+  ["US034-0029756-Q02","Eurofins",34978,0,0],["U3444","MCule",25402,0,0],
+  ["0759BC5D","Selleck",19430,0,0],["20704","Alithea",13988,6994,50],
+  ["20705","Partex",9985,9985,100],["20711","Partex",6994,0,0],
+  ["AXIB-20260306","WuXi",35000,0,0],["PH-AXIO-ADME-2026-01","Pharmaron",37000,0,0],
+  ["US034-0029862-Q01","Eurofins",5750,0,0],["SOW-1","iMerit",1200,0,0]
+];
+
+const poBody = document.getElementById('poBody');
+pos.forEach(r => {
+  const pct = r[4];
+  const barColor = pct>=100?'#2d7a00':pct>50?'#e18727':'#0777b3';
+  const pctColor = pct>=100?'#2d7a00':pct>0?'#e18727':'#6a6a6a';
+  poBody.innerHTML += `<tr>
+    <td class="bold">${r[0]}</td><td class="gray">${r[1]}</td>
+    <td class="r gray">${fmtFull(r[2])}</td><td class="r bold">${fmtFull(r[3])}</td>
+    <td class="r" style="color:${pctColor}">${pct}%</td>
+    <td><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${barColor}"></div></div></td>
+  </tr>`;
+});
 </script>
 </body>
 </html>
