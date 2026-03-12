@@ -115,7 +115,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
   <div id="tab-overview">
     <div class="kpi-grid">
       <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Committed</div></div>
-      <div><div class="kpi-val blue">$5.7M</div><div class="kpi-label">Axiom Training</div></div>
+      <div><div class="kpi-val blue">$5.6M</div><div class="kpi-label">Axiom Training</div></div>
       <div><div class="kpi-val orange">$1.8M</div><div class="kpi-label">Customer Work</div></div>
       <div><div class="kpi-val">50</div><div class="kpi-label">Unique Quotes</div></div>
     </div>
@@ -152,7 +152,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
           <thead><tr><th>Status</th><th class="r">Quotes</th><th class="r">Spend</th></tr></thead>
           <tbody>
             <tr><td>In process</td><td class="r gray">18</td><td class="r bold">$4,598,541</td></tr>
-            <tr><td>Quote Generated</td><td class="r gray">22</td><td class="r bold">$2,289,440</td></tr>
+            <tr><td>Quote Generated</td><td class="r gray">20</td><td class="r bold">$2,245,440</td></tr>
             <tr><td>Completed</td><td class="r gray">9</td><td class="r bold">$628,045</td></tr>
             <tr><td>Quote Signed</td><td class="r gray">2</td><td class="r bold">$15,188</td></tr>
             <tr><td>No Quote</td><td class="r gray">1</td><td class="r bold">$6,250</td></tr>
@@ -282,12 +282,10 @@ const allQuotes = [
   ["AW-20703","Cell Assays","2D+ Truvivo (Labor + Reagents)","Axiom Training","Partex","Additional 250 training compounds",250,114775,"In process"],
   ["AW-20694-GNE","Cell Assays","2D PHH (Labor + Reagents)","Genentech","Partex","700 GNE compounds",700,82118.75,"In process"],
   ["AW-20706-GNE","Cell Assays","2D PHH NEW DONOR (Labor + Reagents)","Genentech","Partex","New donor PHH prod run, 700 GNE compounds",700,75118.75,"Quote Generated"],
-  ["AW-20699","Cell Assays","2D PHH (Labor + Reagents)","Axiom Training","Partex","Full prod run, 650 training compounds",650,67217,"Quote Generated"],
-  ["AW-20699-ISO","Cell Assays","2D PHH (Labor + Reagents) — ISO","Isomorphic","Partex","Isomorphic allocation (50 of 700 cmpds)",50,5170.5,"Quote Generated"],
+  ["AW-20699","Cell Assays","2D PHH (Labor + Reagents)","Axiom Training","Partex","Full prod run, 650 training compounds",650,48645.54,"Quote Generated"],
+  ["AW-20699-ISO","Cell Assays","2D PHH (Labor + Reagents) — ISO","Isomorphic","Partex","Isomorphic allocation (50 of 700 cmpds)",50,3741.96,"Quote Generated"],
   ["AW-20694-BI","Cell Assays","2D PHH (Labor + Reagents)","BI","Partex","300 BI compounds",347,35193.75,"In process"],
   ["AW-20706-BI","Cell Assays","2D PHH NEW DONOR (Labor + Reagents)","BI","Partex","New donor PHH prod run, 300 BI compounds",300,32193.75,"Quote Generated"],
-  ["AW-20699","Cell Assays","2D PHH (Cells)","Axiom Training","Partex","Full prod run, 650 training compounds",650,22285.5,"Quote Generated"],
-  ["AW-20699-ISO","Cell Assays","2D PHH (Cells) — ISO","Isomorphic","Partex","Isomorphic allocation (50 of 700 cmpds)",50,1714.5,"Quote Generated"],
   ["AW-20694-GNE","Cell Assays","2D PHH (Cells)","Genentech","Partex","700 GNE compounds",700,17500,"In process"],
   ["AW-20705","Cell Assays","2D PHH (Test PHH lots LOC and UWM)","Axiom Training","Partex","Test PHH lots LOC and UWM",null,9985,"Quote Generated"],
   ["AW-20694-BI","Cell Assays","2D PHH (Cells)","BI","Partex","300 BI compounds",347,7500,"In process"],
@@ -425,7 +423,7 @@ const catChart = new Chart(document.getElementById('catChart'), {
   type: 'bar',
   data: {
     labels: ['Cell Assays','Off-the-Shelf ADME + MitoTox','Proteomics','Compound Sourcing','Instruments','Annotations','Transcriptomics'],
-    datasets: [{ data: [3415434,1798362,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
+    datasets: [{ data: [3371434,1798362,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCatDrilldown(catLabels[elements[0].index]); } },
@@ -438,11 +436,11 @@ new Chart(document.getElementById('csChart'), {
   type: 'bar',
   data: {
     labels: ['Axiom Training','Genentech','BI','Isomorphic'],
-    datasets: [{ data: [5651517,1243381,564149,78418], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
+    datasets: [{ data: [5610660,1243381,564149,75275], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCsDrilldown(csLabels[elements[0].index]); } },
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7537465*100).toFixed(1)+'%)'}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7493465*100).toFixed(1)+'%)'}}},
     scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}},y:{ticks:{font:{size:12}},grid:{display:false}}} }
 });
 
@@ -450,7 +448,7 @@ new Chart(document.getElementById('csChart'), {
 function drawInvCharts() {
   // Vendor stacked bar
   const vendors = ['Partex','Eurofins','Nomic','MCE','WuXi','Excelra','Pharmaron','MCule','Selleck','Alithea','WuXi/MCE','iMerit'];
-  const quoted = [3697428,1630862,1499136,384714,130500,92650,37000,25402,19430,13988,5153,1200];
+  const quoted = [3653428,1630862,1499136,384714,130500,92650,37000,25402,19430,13988,5153,1200];
   const invoiced = [3038861,521862,0,367858,0,0,0,0,0,0,0,0];
   const remaining = quoted.map((q,i) => q - invoiced[i]);
 
@@ -553,7 +551,7 @@ const pos = [
   ["20694","Partex",320948,289373,90.2],["20707","Partex",275000,275000,100],
   ["M2584452/M2584696","MCE",208354,206528,99.1],["20700","Partex",137940,37436,27.1],
   ["20703","Partex",114775,114775,100],["2025122408609","MCE",109930,110130,100],
-  ["20706","Partex",107313,0,0],["20699","Partex",96388,0,0],
+  ["20706","Partex",107313,0,0],["20699","Partex",52388,0,0],
   ["AXIB-20250819-ANaJ","WuXi",95500,0,0],["US034-0028928-Q03","Eurofins",85016,0,0],
   ["25-00690","Nomic",78336,0,0],["US034-0029837-Q01","Eurofins",75528,0,0],
   ["M2588483/M2588484","MCE",51200,51200,100],["M2619561","MCE",13278,0,0],
