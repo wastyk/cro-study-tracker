@@ -117,7 +117,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
       <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Committed</div></div>
       <div><div class="kpi-val blue">$5.6M</div><div class="kpi-label">Axiom Training</div></div>
       <div><div class="kpi-val orange">$1.8M</div><div class="kpi-label">Customer Work</div></div>
-      <div><div class="kpi-val">50</div><div class="kpi-label">Unique Quotes</div></div>
+      <div><div class="kpi-val">51</div><div class="kpi-label">Unique Quotes</div></div>
     </div>
 
     <div class="section">
@@ -152,7 +152,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
           <thead><tr><th>Status</th><th class="r">Quotes</th><th class="r">Spend</th></tr></thead>
           <tbody>
             <tr><td>In process</td><td class="r gray">18</td><td class="r bold">$4,598,541</td></tr>
-            <tr><td>Quote Generated</td><td class="r gray">20</td><td class="r bold">$2,245,440</td></tr>
+            <tr><td>Quote Generated</td><td class="r gray">21</td><td class="r bold">$2,266,690</td></tr>
             <tr><td>Completed</td><td class="r gray">9</td><td class="r bold">$628,045</td></tr>
             <tr><td>Quote Signed</td><td class="r gray">2</td><td class="r bold">$15,188</td></tr>
             <tr><td>No Quote</td><td class="r gray">1</td><td class="r bold">$6,250</td></tr>
@@ -304,6 +304,7 @@ const allQuotes = [
   ["WUXI-PILOT","Off-the-Shelf ADME + MitoTox","T1 ADME Pilot","Axiom Training","WuXi",null,191,95500,"Completed"],
   ["WUXI-ADME-PILOT2","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","WuXi","Sol, Caco2, LogD, Microsome Stability, PPB, RM",50,35000,"Quote Generated"],
   ["PHAR-ADME-PILOT","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","Pharmaron","LogD, Sol, Stability, PPB, Caco2, MetTrap",50,37000,"Quote Generated"],
+  ["CYP-ADME-PILOT","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","Cyprotex","LogD, Sol, Caco2, Microsome Stability, PPB, RM",50,21250,"Quote Generated"],
   ["EF-BSEP-SCALE","Off-the-Shelf ADME + MitoTox","BSEP Scale up","Axiom Training","Eurofins","2 conc, n=2, 4 vehicle ATP/AMP, cyclosporine",400,75528,"Quote Generated"],
   ["EF-MT-GNE","Off-the-Shelf ADME + MitoTox","Mito Tox","Genentech","Eurofins",null,700,56840,"Quote Generated"],
   ["EF-MT-TRANS","Off-the-Shelf ADME + MitoTox","Mito Tox (Transporters/Bio)","Axiom Training","Eurofins","7 conc, n=3, HepG2",400,46000,"Quote Generated"],
@@ -423,7 +424,7 @@ const catChart = new Chart(document.getElementById('catChart'), {
   type: 'bar',
   data: {
     labels: ['Cell Assays','Off-the-Shelf ADME + MitoTox','Proteomics','Compound Sourcing','Instruments','Annotations','Transcriptomics'],
-    datasets: [{ data: [3371434,1798362,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
+    datasets: [{ data: [3371434,1819612,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCatDrilldown(catLabels[elements[0].index]); } },
@@ -436,20 +437,20 @@ new Chart(document.getElementById('csChart'), {
   type: 'bar',
   data: {
     labels: ['Axiom Training','Genentech','BI','Isomorphic'],
-    datasets: [{ data: [5610660,1243381,564149,75275], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
+    datasets: [{ data: [5631910,1243381,564149,75275], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCsDrilldown(csLabels[elements[0].index]); } },
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7493465*100).toFixed(1)+'%)'}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7514715*100).toFixed(1)+'%)'}}},
     scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}},y:{ticks:{font:{size:12}},grid:{display:false}}} }
 });
 
 // Invoice charts (lazy)
 function drawInvCharts() {
   // Vendor stacked bar
-  const vendors = ['Partex','Eurofins','Nomic','MCE','WuXi','Excelra','Pharmaron','MCule','Selleck','Alithea','WuXi/MCE','iMerit'];
-  const quoted = [3653428,1630862,1499136,384714,130500,92650,37000,25402,19430,13988,5153,1200];
-  const invoiced = [3038861,521862,0,367858,0,0,0,0,0,0,0,0];
+  const vendors = ['Partex','Eurofins','Nomic','MCE','WuXi','Excelra','Pharmaron','MCule','Selleck','Cyprotex','Alithea','WuXi/MCE','iMerit'];
+  const quoted = [3653428,1630862,1499136,384714,130500,92650,37000,25402,19430,21250,13988,5153,1200];
+  const invoiced = [3038861,521862,0,367858,0,0,0,0,0,0,0,0,0];
   const remaining = quoted.map((q,i) => q - invoiced[i]);
 
   new Chart(document.getElementById('vendorChart'), {
