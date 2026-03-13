@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRO Budget Tracker</title>
+<title>CRO Study Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,7 +78,7 @@
 <body>
 <div class="pw-overlay" id="pwOverlay">
   <div class="pw-box">
-    <h2>CRO Budget Tracker</h2>
+    <h2>CRO Study Tracker</h2>
     <p>Enter password to view dashboard</p>
     <input type="password" id="pwInput" placeholder="Password" autocomplete="off" autofocus>
     <button onclick="checkPw()">Unlock</button>
@@ -103,7 +103,7 @@ document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='En
 if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay').style.display='none';
 </script>
 <div class="container">
-  <h1>CRO Budget Tracker</h1>
+  <h1>CRO Study Tracker</h1>
   <p class="subtitle">Q4 2025 &ndash; Q1 2026 &bull; Updated 2026-03-12</p>
 
   <div class="tabs">
