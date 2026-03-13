@@ -180,9 +180,9 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
   <div id="tab-invoices" class="hidden">
     <div class="kpi-grid">
       <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Quoted</div></div>
-      <div><div class="kpi-val blue">$3.9M</div><div class="kpi-label">Total Invoiced (Gross)</div></div>
+      <div><div class="kpi-val blue">$4.0M</div><div class="kpi-label">Total Invoiced (Gross)</div></div>
       <div><div class="kpi-val green">$3.9M</div><div class="kpi-label">Total Payable (Net)</div></div>
-      <div><div class="kpi-val orange">52%</div><div class="kpi-label">% Invoiced</div></div>
+      <div><div class="kpi-val orange">53%</div><div class="kpi-label">% Invoiced</div></div>
     </div>
 
     <div class="section">
@@ -450,7 +450,7 @@ function drawInvCharts() {
   // Vendor stacked bar
   const vendors = ['Partex','Eurofins','Nomic','MCE','WuXi','Excelra','Pharmaron','MCule','Selleck','Cyprotex','Alithea','WuXi/MCE','iMerit'];
   const quoted = [3653428,1630862,1499136,384714,130500,92650,37000,25402,19430,21250,13988,5153,1200];
-  const invoiced = [3038861,521862,0,367858,0,0,0,0,0,0,0,0,0];
+  const invoiced = [3038861,563096,0,367858,0,0,0,0,0,0,0,0,0];
   const remaining = quoted.map((q,i) => q - invoiced[i]);
 
   new Chart(document.getElementById('vendorChart'), {
@@ -472,8 +472,8 @@ function drawInvCharts() {
     data: {
       labels: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'],
       datasets: [
-        { label:'Cash Out', data: [181758,1721963,641023,925872,389672,0,0], backgroundColor:'#0777b3', borderRadius:4 },
-        { label:'Gross Invoiced', data: [181758,1721963,690861,925872,408126,0,0], backgroundColor:'#e5e7eb', borderRadius:4 },
+        { label:'Cash Out', data: [181758,1721963,641023,925872,389672,41234,0], backgroundColor:'#0777b3', borderRadius:4 },
+        { label:'Gross Invoiced', data: [181758,1721963,690861,925872,408126,41234,0], backgroundColor:'#e5e7eb', borderRadius:4 },
         { label:'Projected', data: [0,0,0,0,0,272955,72000], backgroundColor:'rgba(7,119,179,0.2)', borderColor:'#0777b3', borderWidth:1, borderRadius:4 }
       ]
     },
@@ -484,6 +484,7 @@ function drawInvCharts() {
 
 // Invoice detail table
 const invoices = [
+  ["US034-0023199","US034-0029617-O","Eurofins","2026-03-09","Assay Services",41234,0,41234,"BSEP Pilot 52 cmpds 7-conc"],
   ["1790","20704","Partex","2026-02-28","FD",6994,0,6994,"Alithea Pilot DRUG-seq"],
   ["1791","20705","Partex","2026-02-28","FD",6985,0,6985,"Test PHH lots LOC and UWM"],
   ["1792","20705","Partex","2026-02-28","Materials",3000,0,3000,"PHH lot testing boutique materials"],
@@ -557,7 +558,7 @@ const pos = [
   ["25-00690","Nomic",78336,0,0],["US034-0029837-Q01","Eurofins",75528,0,0],
   ["M2588483/M2588484","MCE",51200,51200,100],["M2619561","MCE",13278,0,0],
   ["M2616664","MCE",1952,0,0],["US034-0029841-Q01","Eurofins",46000,0,0],
-  ["US034-0029617-Q01","Eurofins",41237,0,0],["US034-0029576-Q04","Eurofins",35803,0,0],
+  ["US034-0029617-Q01","Eurofins",41237,41234,100],["US034-0029576-Q04","Eurofins",35803,0,0],
   ["US034-0029756-Q02","Eurofins",34978,0,0],["U3444","MCule",25402,0,0],
   ["0759BC5D","Selleck",19430,0,0],["20704","Alithea",13988,6994,50],
   ["20705","Partex",9985,9985,100],["20711","Partex",6994,0,0],
