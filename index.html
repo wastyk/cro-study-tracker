@@ -104,7 +104,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
 </script>
 <div class="container">
   <h1>CRO Budget Tracker</h1>
-  <p class="subtitle">Q4 2025 &ndash; Q1 2026 &bull; Updated 2026-03-16</p>
+  <p class="subtitle">Q4 2025 &ndash; Q1 2026 &bull; Updated 2026-03-18</p>
 
   <div class="tabs">
     <button class="tab active" onclick="showTab('overview')">Budget Overview</button>
@@ -152,9 +152,9 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
           <thead><tr><th>Status</th><th class="r">Quotes</th><th class="r">Spend</th></tr></thead>
           <tbody>
             <tr><td>In process</td><td class="r gray">18</td><td class="r bold">$4,598,541</td></tr>
-            <tr><td>Quote Generated</td><td class="r gray">21</td><td class="r bold">$2,301,190</td></tr>
+            <tr><td>Quote Generated</td><td class="r gray">20</td><td class="r bold">$2,226,062</td></tr>
             <tr><td>Completed</td><td class="r gray">9</td><td class="r bold">$628,045</td></tr>
-            <tr><td>Quote Signed</td><td class="r gray">2</td><td class="r bold">$15,188</td></tr>
+            <tr><td>Quote Signed</td><td class="r gray">3</td><td class="r bold">$38,979</td></tr>
             <tr><td>No Quote</td><td class="r gray">1</td><td class="r bold">$6,250</td></tr>
           </tbody>
         </table>
@@ -182,7 +182,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
       <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Quoted</div></div>
       <div><div class="kpi-val blue">$4.5M</div><div class="kpi-label">Total Invoiced (Gross)</div></div>
       <div><div class="kpi-val green">$4.5M</div><div class="kpi-label">Total Payable (Net)</div></div>
-      <div><div class="kpi-val orange">60%</div><div class="kpi-label">% Invoiced</div></div>
+      <div><div class="kpi-val orange">61%</div><div class="kpi-label">% Invoiced</div></div>
     </div>
 
     <div class="section">
@@ -303,9 +303,9 @@ const allQuotes = [
   ["EF-ADME-BI","Off-the-Shelf ADME + MitoTox","T1 ADME","BI","Eurofins",null,347,120492.28,"In process"],
   ["WUXI-PILOT","Off-the-Shelf ADME + MitoTox","T1 ADME Pilot","Axiom Training","WuXi",null,191,95500,"Completed"],
   ["WUXI-ADME-PILOT2","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","WuXi","Sol, Caco2, LogD, Microsome Stability, PPB, RM",50,35000,"Quote Generated"],
-  ["PHAR-ADME-PILOT","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","Pharmaron","LogD, Sol, Stability, PPB, Caco2, MetTrap",50,37000,"Quote Generated"],
+  ["PHAR-ADME-PILOT","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM + UV Purity","Axiom Training","Pharmaron","LogD, Sol, Stability, PPB, Caco2, MetTrap, UV Purity",50,37400,"Quote Generated"],
   ["CYP-ADME-PILOT","Off-the-Shelf ADME + MitoTox","Tier 1 ADME pilot + RM assay","Axiom Training","Cyprotex","LogD, Sol, Caco2, Microsome Stability, PPB, RM",50,21250,"Quote Generated"],
-  ["EF-BSEP-SCALE","Off-the-Shelf ADME + MitoTox","BSEP Scale up","Axiom Training","Eurofins","2 conc, n=2, 4 vehicle ATP/AMP, cyclosporine",400,75528,"Quote Generated"],
+  ["EF-BSEP-SCALE","Off-the-Shelf ADME + MitoTox","BSEP Scale up (Phase 1)","Axiom Training","Eurofins","BSEP inhibition, 252 cmpds first tranche",252,23791,"Quote signed"],
   ["EF-MT-GNE","Off-the-Shelf ADME + MitoTox","Mito Tox","Genentech","Eurofins",null,700,56840,"Quote Generated"],
   ["EF-MT-TRAIN","Off-the-Shelf ADME + MitoTox","Custom Mito Tox (HepG2)","Axiom Training","Eurofins","7 conc, n=3, HepG2",700,80500,"Quote Generated"],
   ["EF-BSEP-PILOT","Off-the-Shelf ADME + MitoTox","BSEP Pilot (7pt dosage curve)","Axiom Training","Eurofins",null,52,41236.52,"Quote Generated"],
@@ -424,7 +424,7 @@ const catChart = new Chart(document.getElementById('catChart'), {
   type: 'bar',
   data: {
     labels: ['Cell Assays','Off-the-Shelf ADME + MitoTox','Proteomics','Compound Sourcing','Instruments','Annotations','Transcriptomics'],
-    datasets: [{ data: [3371434,1854112,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
+    datasets: [{ data: [3371434,1802775,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCatDrilldown(catLabels[elements[0].index]); } },
@@ -437,11 +437,11 @@ new Chart(document.getElementById('csChart'), {
   type: 'bar',
   data: {
     labels: ['Axiom Training','Genentech','BI','Isomorphic'],
-    datasets: [{ data: [5666410,1243381,564149,75275], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
+    datasets: [{ data: [5615073,1243381,564149,75275], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCsDrilldown(csLabels[elements[0].index]); } },
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7549215*100).toFixed(1)+'%)'}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7497878*100).toFixed(1)+'%)'}}},
     scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}},y:{ticks:{font:{size:12}},grid:{display:false}}} }
 });
 
@@ -449,7 +449,7 @@ new Chart(document.getElementById('csChart'), {
 function drawInvCharts() {
   // Vendor stacked bar
   const vendors = ['Partex','Eurofins','Nomic','MCE','WuXi','Excelra','Pharmaron','MCule','Selleck','Cyprotex','Alithea','WuXi/MCE','iMerit'];
-  const quoted = [3653428,1665362,1499136,384714,130500,92650,37000,25402,19430,21250,13988,5153,1200];
+  const quoted = [3653428,1613625,1499136,384714,130500,92650,37400,25402,19430,21250,13988,5153,1200];
   const invoiced = [3038861,563096,566400,379186,0,0,0,0,0,0,0,0,1200];
   const remaining = quoted.map((q,i) => q - invoiced[i]);
 
@@ -561,14 +561,14 @@ const pos = [
   ["20703","Partex",114775,114775,100],["2025122408609","MCE",109930,110130,100],
   ["20706","Partex",107313,0,0],["20699","Partex",52388,0,0],
   ["AXIB-20250819-ANaJ","WuXi",95500,0,0],["US034-0028928-Q03","Eurofins",85016,0,0],
-  ["25-00690","Nomic",78336,0,0],["US034-0029837-Q01","Eurofins",75528,0,0],
+  ["25-00690","Nomic",78336,0,0],["US034-0029837","Eurofins",23791,0,0],
   ["M2588483/M2588484","MCE",51200,51200,100],["M2619561","MCE",13278,7044,53.0],
   ["M2616664","MCE",1952,4284,100],
   ["US034-0029617-Q01","Eurofins",41237,41234,100],["US034-0029576-Q04","Eurofins",35803,0,0],
   ["US034-0029756-Q02","Eurofins",34978,0,0],["U3444","MCule",25402,0,0],
   ["0759BC5D","Selleck",19430,0,0],["20704","Alithea",13988,6994,50],
   ["20705","Partex",9985,9985,100],["20711","Partex",6994,0,0],
-  ["AXIB-20260306","WuXi",35000,0,0],["PH-AXIO-ADME-2026-01","Pharmaron",37000,0,0],
+  ["AXIB-20260306","WuXi",35000,0,0],["PH-AXIO-ADME-2026-01","Pharmaron",37400,0,0],
   ["US034-0029862-Q01","Eurofins",5750,0,0],["US034-0029939-Q03","Eurofins",80500,0,0],
   ["SOW-1","iMerit",1200,1200,100]
 ];
