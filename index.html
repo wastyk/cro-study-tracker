@@ -117,7 +117,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
       <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Committed</div></div>
       <div><div class="kpi-val blue">$5.7M</div><div class="kpi-label">Axiom Training</div></div>
       <div><div class="kpi-val orange">$1.8M</div><div class="kpi-label">Customer Work</div></div>
-      <div><div class="kpi-val">51</div><div class="kpi-label">Unique Quotes</div></div>
+      <div><div class="kpi-val">52</div><div class="kpi-label">Unique Quotes</div></div>
     </div>
 
     <div class="section">
@@ -153,7 +153,7 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
           <tbody>
             <tr><td>In process</td><td class="r gray">18</td><td class="r bold">$4,598,541</td></tr>
             <tr><td>Quote Generated</td><td class="r gray">20</td><td class="r bold">$2,226,062</td></tr>
-            <tr><td>Completed</td><td class="r gray">9</td><td class="r bold">$628,045</td></tr>
+            <tr><td>Completed</td><td class="r gray">10</td><td class="r bold">$660,525</td></tr>
             <tr><td>Quote Signed</td><td class="r gray">3</td><td class="r bold">$38,979</td></tr>
             <tr><td>No Quote</td><td class="r gray">1</td><td class="r bold">$6,250</td></tr>
           </tbody>
@@ -180,8 +180,8 @@ if(sessionStorage.getItem('cro_auth')==='1') document.getElementById('pwOverlay'
   <div id="tab-invoices" class="hidden">
     <div class="kpi-grid">
       <div><div class="kpi-val">$7.5M</div><div class="kpi-label">Total Quoted</div></div>
-      <div><div class="kpi-val blue">$4.5M</div><div class="kpi-label">Total Invoiced (Gross)</div></div>
-      <div><div class="kpi-val green">$4.5M</div><div class="kpi-label">Total Payable (Net)</div></div>
+      <div><div class="kpi-val blue">$4.6M</div><div class="kpi-label">Total Invoiced (Gross)</div></div>
+      <div><div class="kpi-val green">$4.6M</div><div class="kpi-label">Total Payable (Net)</div></div>
       <div><div class="kpi-val orange">61%</div><div class="kpi-label">% Invoiced</div></div>
     </div>
 
@@ -314,6 +314,7 @@ const allQuotes = [
   ["EF-RM-PILOT","Off-the-Shelf ADME + MitoTox","Reactive Metabolites Pilot","Axiom Training","Eurofins",null,200,34740,"Completed"],
   ["EF-SPHEROIDS","Off-the-Shelf ADME + MitoTox","Spheroids Pilot","Axiom Training","Eurofins",null,186,33552.54,"In process"],
   ["EF-MT-BI","Off-the-Shelf ADME + MitoTox","Mito Tox","BI","Eurofins",null,347,28176.4,"In process"],
+  ["EF-MITO-TOX","Off-the-Shelf ADME + MitoTox","Mito Tox","Axiom Training","Eurofins","Reduced scope from original 2519 cmpds",null,32480,"Completed"],
   ["EF-ISO-MT","Off-the-Shelf ADME + MitoTox","Mito Tox Isomorphic Pilot","Axiom Training","Eurofins","7 conc, n=3, HepG2",50,5750,"Quote Generated"],
   ["NOMIC-SCALE","Proteomics","Nomic Scale up (77-plex)","Axiom Training","Nomic","88 plates (384wp)",null,596761.41,"In process"],
   ["NOMIC-60EXTRA","Proteomics","Nomic (77-plex)","Axiom Training","Nomic","60 plates",null,576000,"Quote Generated"],
@@ -424,7 +425,7 @@ const catChart = new Chart(document.getElementById('catChart'), {
   type: 'bar',
   data: {
     labels: ['Cell Assays','Off-the-Shelf ADME + MitoTox','Proteomics','Compound Sourcing','Instruments','Annotations','Transcriptomics'],
-    datasets: [{ data: [3371434,1802775,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
+    datasets: [{ data: [3371434,1835255,1499136,434699,275000,93850,20982], backgroundColor: '#0777b3', borderRadius: 4, barThickness: 18 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCatDrilldown(catLabels[elements[0].index]); } },
@@ -437,11 +438,11 @@ new Chart(document.getElementById('csChart'), {
   type: 'bar',
   data: {
     labels: ['Axiom Training','Genentech','BI','Isomorphic'],
-    datasets: [{ data: [5615073,1243381,564149,75275], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
+    datasets: [{ data: [5647553,1243381,564149,75275], backgroundColor: ['#0777b3','#bd4e35','#2d7a00','#6d28d9'], borderRadius: 4, barThickness: 22 }]
   },
   options: { indexAxis:'y', responsive:true,
     onClick: (evt, elements) => { if(elements.length){ showCsDrilldown(csLabels[elements[0].index]); } },
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7497878*100).toFixed(1)+'%)'}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtFull(c.raw)+' ('+(c.raw/7530358*100).toFixed(1)+'%)'}}},
     scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:'#eee'}},y:{ticks:{font:{size:12}},grid:{display:false}}} }
 });
 
@@ -449,8 +450,8 @@ new Chart(document.getElementById('csChart'), {
 function drawInvCharts() {
   // Vendor stacked bar
   const vendors = ['Partex','Eurofins','Nomic','MCE','WuXi','Excelra','Pharmaron','MCule','Selleck','Cyprotex','Alithea','WuXi/MCE','iMerit'];
-  const quoted = [3653428,1613625,1499136,384714,130500,92650,37400,25402,19430,21250,13988,5153,1200];
-  const invoiced = [3038861,563096,566400,379186,0,0,0,0,0,0,0,0,1200];
+  const quoted = [3653428,1646105,1499136,384714,130500,92650,37400,25402,19430,21250,13988,5153,1200];
+  const invoiced = [3038861,595576,566400,379186,0,0,0,0,0,0,0,0,1200];
   const remaining = quoted.map((q,i) => q - invoiced[i]);
 
   new Chart(document.getElementById('vendorChart'), {
@@ -472,8 +473,8 @@ function drawInvCharts() {
     data: {
       labels: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'],
       datasets: [
-        { label:'Cash Out', data: [181758,1721963,641023,925872,957272,52562,0], backgroundColor:'#0777b3', borderRadius:4 },
-        { label:'Gross Invoiced', data: [181758,1721963,690861,925872,975726,52562,0], backgroundColor:'#e5e7eb', borderRadius:4 },
+        { label:'Cash Out', data: [181758,1721963,641023,925872,957272,85042,0], backgroundColor:'#0777b3', borderRadius:4 },
+        { label:'Gross Invoiced', data: [181758,1721963,690861,925872,975726,85042,0], backgroundColor:'#e5e7eb', borderRadius:4 },
         { label:'Projected', data: [0,0,0,0,0,226955,72000], backgroundColor:'rgba(7,119,179,0.2)', borderColor:'#0777b3', borderWidth:1, borderRadius:4 }
       ]
     },
@@ -484,6 +485,7 @@ function drawInvCharts() {
 
 // Invoice detail table
 const invoices = [
+  ["US034-0023239","US034-0028928-O","Eurofins","2026-03-17","Assay Services",32480,0,32480,"Mito Tox assay services"],
   ["M2619565","2026022046100-5","MCE","2026-03-10","Compound Sourcing",7044,0,7044,"BTK+Obesity 48 cmpds to Eurofins"],
   ["US034-0023199","US034-0029617-O","Eurofins","2026-03-09","Assay Services",41234,0,41234,"BSEP Pilot 52 cmpds 7-conc"],
   ["M2616664","2026021942801-2","MCE","2026-03-04","Compound Sourcing",2027,0,2027,"Replacement 50 cmpds to Partex"],
@@ -560,7 +562,7 @@ const pos = [
   ["M2584452/M2584696","MCE",208354,206528,99.1],["20700","Partex",137940,37436,27.1],
   ["20703","Partex",114775,114775,100],["2025122408609","MCE",109930,110130,100],
   ["20706","Partex",107313,0,0],["20699","Partex",52388,0,0],
-  ["AXIB-20250819-ANaJ","WuXi",95500,0,0],["US034-0028928-Q03","Eurofins",85016,0,0],
+  ["AXIB-20250819-ANaJ","WuXi",95500,0,0],["US034-0028928-Q03","Eurofins",32480,32480,100],
   ["25-00690","Nomic",78336,0,0],["US034-0029837","Eurofins",23791,0,0],
   ["M2588483/M2588484","MCE",51200,51200,100],["M2619561","MCE",13278,7044,53.0],
   ["M2616664","MCE",1952,4284,100],
